@@ -11,49 +11,47 @@
  */
 class Solution {
 public:
-  ListNode *reverse_once_k(ListNode *head, int k) {
+  ListNode *reverseK(ListNode *head, int k) {
+    ListNode *now = nullptr, *pre = nullptr;
+    // 1->2->3
     int count = 0;
-    auto c_p = head;
-    while (c_p != NULL && count < k) {
-      c_p = c_p->next;
+    while(count < k) {        // 1            2
+      auto next = head->next; // 2            3
+      head->next = pre;       // 1->null      2->1->null
+      pre = head;             // 1            2
+      head = next;            // 2            3
       count++;
     }
-    if (count < k) {
-      return head;
-    }
-    ListNode *tail = NULL, *now = NULL, *pre = NULL;
-    auto new_tail = head;
-    count = 0;
-    while (head != NULL && count < k) {
-      now = head;
-      head = head->next;
-      tail = head;
-      if (pre != NULL) {
-        now->next = pre;
-      }
-      pre = now;
-      count++;
-    }
-    new_tail->next = tail;
-    return now;
+    return pre;
   }
   ListNode *reverseKGroup(ListNode *head, int k) {
-    auto tail = head;
-    ListNode *new_head = head;
-    
-    new_head = reverse_once_k(head, k);
-    if (new_head == NULL) {
+    if (k == 1) {
       return head;
     }
-    auto pre = head;
-    while (head->next) {
-      auto temp = head->next;
-      head = temp;
-      auto now_head = reverse_once_k(temp, k);
-      pre->next = now_head;
-      pre = head;
+    ListNode *now = head, *pre = nullptr;
+    // 1->2->3->4->5   2
+    while(now) {
+      auto reverseHead = now;     // 1   3
+      int count = 0;
+      while (now && count < k) {  // 1
+        count++;
+        now = now->next;
+      }
+      // now 3->4->5
+      if (count == k) {
+        auto newHead = reverseK(reverseHead, k);  // 2->1  4->3
+        if (pre) {
+          pre->next = newHead;  // 2->1->4->3->null
+        } else {
+          head = newHead;       // 2->1
+        }
+      } else {
+        pre->next = reverseHead;// 3->5
+        break;
+      }
+      pre = reverseHead;       // 1
     }
-    return new_head;
+    return head;
   }
 };
 
